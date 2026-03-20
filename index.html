@@ -65,7 +65,7 @@
     <!-- Navigation -->
     <nav id="main-nav" class="hidden sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3 md:px-10 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
-            <img src="logo.png" id="brand-logo-img" alt="Logo" class="w-10 h-10 md:w-16 md:h-16 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
+            <img src="logo.png" id="brand-logo-img" alt="Logo" class="w-18 h-12 md:w-16 md:h-16 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
             <h1 class="text-lg md:text-2xl font-brand font-bold tracking-tight hidden sm:block text-brand-purple">Makarios <span class="text-brand-gold font-normal text-[10px] block -mt-1 uppercase tracking-[0.3em]">Cakes</span></h1>
         </div>
         
@@ -113,7 +113,12 @@
     <!-- Product Modal -->
     <div id="product-modal" class="hidden fixed inset-0 z-[150] modal-overlay flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-6 md:p-8 shadow-2xl my-auto animate-in zoom-in duration-300">
-            <h2 id="modal-title" class="text-2xl font-brand font-bold mb-6 text-brand-purple flex justify-between items-center">Manage Cake</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modal-title" class="text-2xl font-brand font-bold text-brand-purple">Manage Cake</h2>
+                <button id="delete-cake-btn" onclick="handleDeleteProduct()" class="hidden p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+            </div>
             <form id="product-form" onsubmit="handleProductSubmit(event)" class="space-y-4">
                 <input type="hidden" id="modal-product-id">
                 <input type="text" id="modal-name" placeholder="Cake Name" required class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold">
@@ -124,14 +129,18 @@
                     </select>
                 </div>
                 <textarea id="modal-desc" placeholder="Short Details..." rows="2" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold"></textarea>
-                <div>
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-4 mb-1 block">Image</label>
-                    <div class="relative w-full h-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden">
-                        <span id="file-name-label" class="text-[10px] text-gray-400">Select Image</span>
+                
+                <div class="space-y-2">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-4 block">Image Source</label>
+                    <input type="url" id="modal-img-url" placeholder="Paste Image URL (Recommended)" oninput="previewFromUrl()" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold text-xs">
+                    
+                    <div class="relative w-full h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden">
+                        <span id="file-name-label" class="text-[10px] text-gray-400">Or Upload File</span>
                         <input type="file" id="product-img-file" accept="image/*" onchange="previewFile()" class="absolute inset-0 opacity-0 cursor-pointer">
                         <img id="file-preview" class="absolute inset-0 w-full h-full object-cover hidden">
                     </div>
                 </div>
+
                 <div class="flex gap-4 pt-2">
                     <button type="button" onclick="closeProductModal()" class="flex-1 bg-gray-100 text-gray-500 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest transition-all">Cancel</button>
                     <button type="submit" id="save-product-btn" class="flex-[2] bg-brand-purple text-white py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest shadow-xl hover:bg-brand-gold transition-all">Save Changes</button>
@@ -221,13 +230,35 @@
             });
         }
 
+        function previewFromUrl() {
+            const urlInput = document.getElementById('modal-img-url');
+            const preview = document.getElementById('file-preview');
+            const label = document.getElementById('file-name-label');
+            
+            if (urlInput.value.trim() !== "") {
+                preview.src = urlInput.value.trim();
+                preview.classList.remove('hidden');
+                label.classList.add('hidden');
+            } else if (!document.getElementById('product-img-file').files.length) {
+                preview.classList.add('hidden');
+                label.classList.remove('hidden');
+            }
+        }
+
         async function handleProductSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('save-product-btn');
             btn.disabled = true; btn.innerHTML = `<div class="loader mx-auto"></div>`;
             const id = document.getElementById('modal-product-id').value;
+            const urlValue = document.getElementById('modal-img-url').value.trim();
             let imgData = document.getElementById('file-preview').src;
-            if (imgData.startsWith('data:image')) imgData = await compressImage(imgData);
+
+            // Prioritize URL if provided to save space
+            if (urlValue !== "") {
+                imgData = urlValue;
+            } else if (imgData.startsWith('data:image')) {
+                imgData = await compressImage(imgData);
+            }
 
             const data = {
                 name: document.getElementById('modal-name').value,
@@ -245,6 +276,23 @@
                 showToast(id ? "Changes Saved" : "Added to Inventory");
             } catch(e) { showToast("Sync Error"); }
             finally { btn.disabled = false; btn.innerText = "Save Changes"; }
+        }
+
+        async function handleDeleteProduct() {
+            const id = document.getElementById('modal-product-id').value;
+            if (!id) return;
+            
+            if (!confirm("Are you sure you want to remove this cake from inventory?")) return;
+
+            const btn = document.getElementById('delete-cake-btn');
+            btn.disabled = true; btn.innerHTML = `<div class="loader w-4 h-4"></div>`;
+            
+            try {
+                await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('cakes').doc(id).delete();
+                closeProductModal();
+                showToast("Cake Deleted");
+            } catch(e) { showToast("Delete Failed"); }
+            finally { btn.disabled = false; btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`; }
         }
 
         async function finalizeOrder() {
@@ -427,7 +475,6 @@
 
         function goToCheckout() { 
             if(cart.length > 0) {
-                // Automatically hide sidebar and transition direct to place order
                 const sb = document.getElementById('cart-sidebar');
                 const ov = document.getElementById('cart-overlay');
                 sb.classList.add('translate-x-full'); 
@@ -446,7 +493,8 @@
         }
 
         function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            const countEl = document.getElementById('cart-count');
+            if (countEl) countEl.innerText = cart.reduce((s, i) => s + i.qty, 0);
             const list = document.getElementById('cart-items'); if (!list) return;
             if (cart.length === 0) { list.innerHTML = `<div class="py-20 opacity-20 italic text-center">Empty</div>`; document.getElementById('cart-total').innerText = "₹0"; return; }
             list.innerHTML = cart.map(i => `<div class="flex gap-4"><img src="${i.img}" class="w-16 h-16 rounded-2xl object-cover"><div class="flex-1"><h4 class="font-bold text-xs">${i.name}</h4><div class="flex items-center justify-between mt-1"><div class="flex items-center gap-3 bg-gray-50 rounded-lg p-1 px-3"><button onclick="changeQty('${i.id}',-1)">-</button><span>${i.qty}</span><button onclick="changeQty('${i.id}',1)">+</button></div><span class="font-bold text-xs">₹${(i.price*i.qty).toLocaleString()}</span></div></div></div>`).join('');
@@ -454,11 +502,25 @@
         }
 
         function changeQty(id, d) { const i = cart.find(x => x.id === id); i.qty += d; if(i.qty <= 0) cart = cart.filter(x => x.id !== id); updateCartUI(); }
-        function previewFile() { const file = document.getElementById('product-img-file').files[0]; const r = new FileReader(); r.onload = e => { document.getElementById('file-preview').src = e.target.result; document.getElementById('file-preview').classList.remove('hidden'); document.getElementById('file-name-label').classList.add('hidden'); }; r.readAsDataURL(file); }
+        
+        function previewFile() { 
+            const file = document.getElementById('product-img-file').files[0]; 
+            const r = new FileReader(); 
+            r.onload = e => { 
+                document.getElementById('file-preview').src = e.target.result; 
+                document.getElementById('file-preview').classList.remove('hidden'); 
+                document.getElementById('file-name-label').classList.add('hidden'); 
+                document.getElementById('modal-img-url').value = ""; // Clear URL if file uploaded
+            }; 
+            r.readAsDataURL(file); 
+        }
+        
         function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
         
         function openProductModal(id = null) {
             document.getElementById('product-modal').classList.remove('hidden');
+            const delBtn = document.getElementById('delete-cake-btn');
+            
             if (id) {
                 const p = cakes.find(x => x.id === id);
                 document.getElementById('modal-title').innerText = "Edit Cake Details";
@@ -467,15 +529,26 @@
                 document.getElementById('modal-price').value = p.price;
                 document.getElementById('modal-category').value = p.category;
                 document.getElementById('modal-desc').value = p.desc;
+                
+                // Set Image Logic
+                if (p.img.startsWith('http')) {
+                    document.getElementById('modal-img-url').value = p.img;
+                } else {
+                    document.getElementById('modal-img-url').value = "";
+                }
+                
                 document.getElementById('file-preview').src = p.img;
                 document.getElementById('file-preview').classList.remove('hidden');
                 document.getElementById('file-name-label').classList.add('hidden');
+                delBtn.classList.remove('hidden');
             } else {
                 document.getElementById('modal-title').innerText = "Register New Cake";
                 document.getElementById('product-form').reset();
                 document.getElementById('modal-product-id').value = "";
+                document.getElementById('modal-img-url').value = "";
                 document.getElementById('file-preview').classList.add('hidden');
                 document.getElementById('file-name-label').classList.remove('hidden');
+                delBtn.classList.add('hidden');
             }
         }
 
@@ -559,10 +632,7 @@
             doc.setFillColor(61, 28, 42); 
             doc.rect(0, 0, 82, 45, 'F');
             
-            // Try to draw logo if available
-            try {
-                doc.addImage(logo, 'JPEG', 30, 6, 36, 22);
-            } catch(e) {}
+            try { doc.addImage(logo, 'JPEG', 6, 4, 70, 30); } catch(e) {}
 
             doc.setTextColor(255);
             doc.setFont('Playfair+Display', 'bold');
@@ -581,41 +651,41 @@
             doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
             
             doc.setFont('Courier', 'bold');
-            doc.text(`Order id: ${o.tempId || o.id.slice(-6).toUpperCase()}`, 5, y); y += 6;
+            doc.text(`Order id: ${o.tempId || o.id.slice(-6).toUpperCase()}`, 7, y); y += 6;
             doc.setFont('Courier', 'normal');
-            doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 5, y);
+            doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 7, y);
             doc.text(`Time: ${new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`, 45, y); y += 8;
 
             doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
 
             // Cake Info
             doc.setFont('Courier', 'bold');
-            doc.text('Items:', 5, y); y += 6;
+            doc.text('Items:', 7, y); y += 6;
             doc.setFont('Courier', 'normal');
             o.items.forEach(i => {
-                doc.text(`• ${i.name}`, 5, y);
-                doc.text(`₹${(i.price*i.qty).toLocaleString()}.00`, 60, y, { align: 'right' });
+                doc.text(`• ${i.name}`, 7, y);
+                doc.text(`₹${(i.price*i.qty).toLocaleString()}.00`, 65, y, { align: 'right' });
                 y += 5;
             });
             y += 2;
-            doc.text(`Quantity: ${o.items.reduce((s,i)=>s+i.qty, 0)}`, 5, y); y += 6;
-            doc.text(`Add ons: ${o.addons || 'None'}`, 5, y); y += 8;
+            doc.text(`Quantity: ${o.items.reduce((s,i)=>s+i.qty, 0)}`, 7, y); y += 6;
+            doc.text(`Add ons: ${o.addons || 'None'}`, 7, y); y += 8;
 
             doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
 
             // Costs
-            doc.text('Subtotal Cost:', 5, y);
-            doc.text(`₹${o.subtotal.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 6;
-            doc.text('Discount:', 5, y);
-            doc.text(`-₹${o.discount.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 6;
+            doc.text('Subtotal Cost:', 7, y);
+            doc.text(`₹${o.subtotal.toLocaleString()}.00`, 65, y, { align: 'right' }); y += 6;
+            doc.text('Discount:', 7, y);
+            doc.text(`-₹${o.discount.toLocaleString()}.00`, 65, y, { align: 'right' }); y += 6;
 
             doc.text('--------------------------------', 40, y, { align: 'center' }); y += 8;
 
             // Grand Total
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setFont('Courier', 'bold');
-            doc.text('Total Cost:', 5, y);
-            doc.text(`₹${o.total.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 5;
+            doc.text('Total Cost:', 7, y);
+            doc.text(`₹${o.total.toLocaleString()}.00`, 65, y, { align: 'right' }); y += 5;
             
             doc.setFontSize(9);
             doc.setFont('Courier', 'normal');
@@ -623,14 +693,14 @@
 
             // Customer Info
             doc.setFont('Courier', 'bold');
-            doc.text('Customer Data:', 5, y); y += 6;
+            doc.text('Customer Data:', 7, y); y += 6;
             doc.setFont('Courier', 'normal');
-            doc.text(`Name: ${o.customer}`, 5, y); y += 6;
-            doc.text(`Phone: ${o.phone}`, 5, y); y += 6;
-            doc.text(`Address: ${o.location}`, 5, y, { maxWidth: 70 }); y += 10;
+            doc.text(`Name: ${o.customer}`, 7, y); y += 6;
+            doc.text(`Phone: ${o.phone}`, 7, y); y += 6;
+            doc.text(`Address: ${o.location}`, 7, y, { maxWidth: 68 }); y += 10;
             
-            doc.text(`Payment: ${o.paymentType}`, 5, y); y += 6;
-            doc.text(`Status: PAID`, 5, y); y += 10;
+            doc.text(`Payment: ${o.paymentType}`, 7, y); y += 6;
+            doc.text(`Status: PAID`, 7, y); y += 10;
 
             doc.text('--------------------------------', 40, y, { align: 'center' }); y += 8;
 
