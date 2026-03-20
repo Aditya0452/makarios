@@ -18,24 +18,22 @@
             --brand-purple: #3D1C2A;
             --brand-gold: #B88E2F;
             --brand-cream: #FDFBF7;
-            --island-green: #D1FAE5; /* Pale Green */
-            --island-text: #065F46;  /* Dark Green for contrast */
+            --island-green: #D1FAE5;
+            --island-text: #065F46;
         }
         body { font-family: 'Poppins', sans-serif; background-color: var(--brand-cream); color: var(--brand-purple); -webkit-tap-highlight-color: transparent; }
         .font-brand { font-family: 'Playfair+Display', serif; }
         .bg-brand-purple { background-color: var(--brand-purple); }
         .bg-brand-gold { background-color: var(--brand-gold); }
         
-        /* Responsive Cake Cards */
         .cake-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 2rem; overflow: hidden; background: white; border: 1px solid #f3f4f6; }
         .cake-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05); }
         
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Dynamic Island Toast Styles */
         .toast-container { 
             position: fixed;
-            top: 12px;
+            top: 20px;
             left: 50%;
             z-index: 500;
             white-space: nowrap; 
@@ -43,20 +41,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Dynamic Island feel */
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .toast-hidden { 
-            transform: translate(-50%, -120%) scale(0.6); 
-            opacity: 0; 
-            pointer-events: none; 
-            filter: blur(4px);
-        }
-        .toast-visible { 
-            transform: translate(-50%, 0) scale(1); 
-            opacity: 1; 
-            pointer-events: auto; 
-            filter: blur(0);
-        }
+        .toast-hidden { transform: translate(-50%, -120%) scale(0.6); opacity: 0; pointer-events: none; filter: blur(4px); }
+        .toast-visible { transform: translate(-50%, 0) scale(1); opacity: 1; pointer-events: auto; filter: blur(0); }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); }
@@ -66,7 +54,7 @@
 </head>
 <body class="min-h-screen overflow-x-hidden">
 
-    <!-- Database Sync Loader -->
+    <!-- Loading Screen -->
     <div id="app-loader" class="fixed inset-0 z-[300] bg-white flex items-center justify-center transition-opacity duration-500">
         <div class="text-center">
             <div class="loader mx-auto mb-4 w-12 h-12"></div>
@@ -77,7 +65,7 @@
     <!-- Navigation -->
     <nav id="main-nav" class="hidden sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3 md:px-10 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
-            <img src="logo.png" alt="Logo" class="w-18 h-10 md:w-26 md:h-16 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
+            <img src="logo.png" id="brand-logo-img" alt="Logo" class="w-10 h-10 md:w-16 md:h-16 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
             <h1 class="text-lg md:text-2xl font-brand font-bold tracking-tight hidden sm:block text-brand-purple">Makarios <span class="text-brand-gold font-normal text-[10px] block -mt-1 uppercase tracking-[0.3em]">Cakes</span></h1>
         </div>
         
@@ -99,7 +87,7 @@
         </div>
     </nav>
 
-    <!-- Mobile Overlay Navigation -->
+    <!-- Mobile Navigation -->
     <div id="mobile-menu" class="hidden fixed inset-0 z-[100] bg-white p-10 flex-col gap-8 text-center text-lg uppercase font-medium tracking-widest animate-in fade-in duration-300">
         <button onclick="showPage('home'); toggleMobileMenu()">Inventory</button>
         <button onclick="showPage('history'); toggleMobileMenu()">Orders</button>
@@ -108,7 +96,7 @@
         <button onclick="toggleMobileMenu()" class="mt-auto text-brand-gold font-bold p-4 border border-brand-gold rounded-full text-sm">Close</button>
     </div>
 
-    <!-- Main Content Container -->
+    <!-- Main Content -->
     <main id="main-content" class="p-4 md:p-8 lg:p-12 max-w-[1400px] mx-auto min-h-[80vh]"></main>
 
     <!-- Sidebar Booking Bin -->
@@ -125,7 +113,7 @@
     <!-- Product Modal -->
     <div id="product-modal" class="hidden fixed inset-0 z-[150] modal-overlay flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-6 md:p-8 shadow-2xl my-auto animate-in zoom-in duration-300">
-            <h2 id="modal-title" class="text-2xl font-brand font-bold mb-6 text-brand-purple flex justify-between items-center text-brand-purple">Manage Cake</h2>
+            <h2 id="modal-title" class="text-2xl font-brand font-bold mb-6 text-brand-purple flex justify-between items-center">Manage Cake</h2>
             <form id="product-form" onsubmit="handleProductSubmit(event)" class="space-y-4">
                 <input type="hidden" id="modal-product-id">
                 <input type="text" id="modal-name" placeholder="Cake Name" required class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold">
@@ -135,11 +123,11 @@
                         <option value="Signature">Signature</option><option value="Fresh">Fresh</option><option value="Classic">Classic</option><option value="Premium">Premium</option>
                     </select>
                 </div>
-                <textarea id="modal-desc" placeholder="Details (e.g. 1kg, ingredients)" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold"></textarea>
+                <textarea id="modal-desc" placeholder="Short Details..." rows="2" class="w-full p-4 bg-gray-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-gold"></textarea>
                 <div>
-                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-4 mb-1 block">Cake Photo (Optimized Link)</label>
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-4 mb-1 block">Image</label>
                     <div class="relative w-full h-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden">
-                        <span id="file-name-label" class="text-[10px] text-gray-400">Tap to Upload Photo</span>
+                        <span id="file-name-label" class="text-[10px] text-gray-400">Select Image</span>
                         <input type="file" id="product-img-file" accept="image/*" onchange="previewFile()" class="absolute inset-0 opacity-0 cursor-pointer">
                         <img id="file-preview" class="absolute inset-0 w-full h-full object-cover hidden">
                     </div>
@@ -152,7 +140,7 @@
         </div>
     </div>
 
-    <!-- Apple Dynamic Island Toast Notification -->
+    <!-- Apple Dynamic Island Toast -->
     <div id="toast" class="toast-hidden toast-container bg-[#D1FAE5] text-[#065F46] px-8 py-3 rounded-full flex items-center gap-3 font-semibold transition-all">
         <div class="w-5 h-5 bg-[#065F46] text-white rounded-full flex items-center justify-center text-[10px]">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4"/></svg>
@@ -262,50 +250,53 @@
         async function finalizeOrder() {
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
-            const sub = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            const disc = parseInt(document.getElementById('cust-discount').value) || 0;
-            const addons = document.getElementById('cust-addons').value;
+            const loc = document.getElementById('cust-location').value;
             const pkg = document.getElementById('cust-package').value;
             const pay = document.getElementById('cust-payment').value;
-            const location = document.getElementById('cust-location').value;
+            const disc = parseInt(document.getElementById('cust-discount').value) || 0;
+            const ads = document.getElementById('cust-addons').value;
 
-            if (!name || !phone) return showToast("Enter Name and Phone");
+            if (!name || !phone || !loc) return showToast("Enter Name, Phone and Location");
+
+            const sub = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            const total = Math.max(0, sub - disc);
+            const orderId = "1001-" + (orders.length + 1);
 
             const order = {
                 date: new Date().toISOString(), 
                 customer: name, 
                 phone: phone, 
-                location: location,
+                location: loc,
                 packageType: pkg, 
                 paymentType: pay, 
                 discount: disc, 
                 subtotal: sub, 
-                total: Math.max(0, sub - disc),
+                total: total,
                 items: cart, 
-                addons: addons,
+                addons: ads,
+                tempId: orderId,
                 status: 'PAID'
             };
 
             try {
                 const ref = await db.collection('artifacts').doc(appId).collection('users').doc(user.uid).collection('orders').add(order);
-                const orderId = "1001-" + Math.floor(Math.random() * 1000); // Random generated for visual
                 
-                // --- WhatsApp Receipt Format (As requested) ---
+                // --- Premium WhatsApp Receipt Format ---
                 const waMsg = `*MAKARIOS CAKES* 🍰\n` +
                               `_Taste the Delicious cakes now_\n` +
                               `------------------------------\n` +
                               `*Order id:* ${orderId}\n` +
                               `*Cake name:* ${cart.map(i => i.name).join(', ')}\n` +
                               `*Quantity:* ${cart.reduce((s,i) => s+i.qty, 0)}\n` +
-                              `*Add ons:* ${addons || 'None'}\n` +
+                              `*Add ons:* ${ads || 'None'}\n` +
                               `*Cost:* ₹${sub.toLocaleString()}.00\n` +
                               `*Discount:* -₹${disc.toLocaleString()}.00\n` +
                               `------------------------------\n` +
-                              `*Total cost: ₹${(sub - disc).toLocaleString()}.00*\n` +
+                              `*Total cost: ₹${total.toLocaleString()}.00*\n` +
                               `------------------------------\n` +
                               `*Customer name:* ${name}\n` +
                               `*Phone number:* ${phone}\n` +
-                              `*Address:* ${location}\n` +
+                              `*Address:* ${loc}\n` +
                               `*Payment type:* ${pay}\n` +
                               `*Payment status:* PAID\n` +
                               `------------------------------\n` +
@@ -313,7 +304,7 @@
 
                 const waUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(waMsg)}`;
                 cart = []; updateCartUI();
-                showPage('success', { order: { id: ref.id, tempId: orderId, ...order }, waUrl });
+                showPage('success', { order: { id: ref.id, ...order }, waUrl });
             } catch(e) { showToast("Sync Error"); }
         }
 
@@ -341,7 +332,7 @@
             document.getElementById('main-content').innerHTML = `
                 <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 animate-in slide-in-from-top duration-500">
                     <div><h2 class="text-3xl md:text-5xl font-brand font-bold mb-2 text-brand-purple">Inventory</h2><p class="text-gray-400 uppercase tracking-widest text-[10px] font-bold">Menu Management</p></div>
-                    <button onclick="openProductModal()" class="w-full md:w-auto bg-brand-gold text-white px-8 py-4 rounded-2xl font-bold uppercase text-[11px] tracking-widest shadow-xl hover:scale-105 transition-all">Add New Cake</button>
+                    <button onclick="openProductModal()" class="w-full md:w-auto bg-brand-gold text-white px-8 py-4 rounded-2xl font-bold uppercase text-[11px] tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all">Add New Cake</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     ${cakes.map(p => `
@@ -371,9 +362,9 @@
                     <h2 class="text-3xl font-brand font-bold mb-10 text-brand-purple text-center underline decoration-brand-gold underline-offset-8">New Order Entry</h2>
                     <form id="order-form" class="grid lg:grid-cols-2 gap-12">
                         <div class="space-y-6">
-                            <input type="text" id="cust-name" placeholder="Customer Name" required class="w-full p-5 bg-white rounded-3xl shadow-sm outline-none focus:ring-2 focus:ring-brand-gold">
+                            <input type="text" id="cust-name" placeholder="Customer Full Name" required class="w-full p-5 bg-white rounded-3xl shadow-sm outline-none focus:ring-2 focus:ring-brand-gold">
                             <input type="tel" id="cust-phone" placeholder="WhatsApp Number" required class="w-full p-5 bg-white rounded-3xl shadow-sm outline-none focus:ring-2 focus:ring-brand-gold">
-                            <textarea id="cust-location" rows="3" placeholder="Delivery Address" required class="w-full p-5 bg-white rounded-3xl shadow-sm outline-none focus:ring-2 focus:ring-brand-gold"></textarea>
+                            <textarea id="cust-location" rows="3" placeholder="Full Delivery Address" required class="w-full p-5 bg-white rounded-3xl shadow-sm outline-none focus:ring-2 focus:ring-brand-gold"></textarea>
                             <div class="grid grid-cols-2 gap-4">
                                 <select id="cust-package" class="p-5 bg-white rounded-3xl shadow-sm outline-none"><option value="Standard">Standard Pack</option><option value="Celebration">Celebration Pack</option></select>
                                 <select id="cust-payment" class="p-5 bg-white rounded-3xl shadow-sm outline-none"><option value="Cash">Cash</option><option value="Online">Online</option></select>
@@ -384,26 +375,26 @@
                             </div>
                             <button type="button" onclick="finalizeOrder()" class="w-full bg-brand-purple text-white py-6 rounded-3xl font-bold uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all">Confirm Booking</button>
                         </div>
-                        <div class="bg-white p-10 rounded-[3.5rem] shadow-xl h-fit border border-gray-50">
-                            <h3 class="text-xl font-brand font-bold mb-8">Order Summary</h3>
+                        <div class="bg-white p-10 rounded-[3.5rem] shadow-xl h-fit border border-gray-50 sticky top-32">
+                            <h3 class="text-xl font-brand font-bold mb-8">Booking Summary</h3>
                             <div class="space-y-5 mb-8 max-h-60 overflow-y-auto no-scrollbar">${cart.map(i => `<div class="flex justify-between text-sm"><span>${i.name} (x${i.qty})</span><span class="font-bold">₹${(i.price*i.qty).toLocaleString()}</span></div>`).join('')}</div>
                             <div class="pt-8 border-t border-dashed space-y-4">
                                 <div class="flex justify-between text-xs text-gray-400 uppercase tracking-widest"><span>Subtotal</span><span>₹${subtotal.toLocaleString()}</span></div>
                                 <div class="flex justify-between text-xs text-red-500 font-bold uppercase tracking-widest"><span>Discount</span><span id="bill-discount">-₹0</span></div>
-                                <div class="flex justify-between text-3xl font-brand font-bold pt-6 text-brand-purple border-t"><span>Total Bill</span><span id="bill-total">₹${subtotal.toLocaleString()}</span></div>
+                                <div class="flex justify-between text-3xl font-brand font-bold pt-6 text-brand-purple border-t"><span>Final Total</span><span id="bill-total">₹${subtotal.toLocaleString()}</span></div>
                             </div>
                         </div>
                     </form>
                 </div>`;
         }
 
-        // --- 6. Utility Functions ---
+        // --- 6. Helper Functions ---
         function showToast(m) {
             const t = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = m;
             t.classList.add('toast-visible'); t.classList.remove('toast-hidden');
             if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { t.classList.remove('toast-visible'); t.classList.add('toast-hidden'); }, 5000);
+            toastTimer = setTimeout(() => { t.classList.remove('toast-visible'); t.classList.add('toast-hidden'); }, 3000);
         }
 
         function calculateTotal() {
@@ -436,7 +427,7 @@
 
         function goToCheckout() { 
             if(cart.length > 0) {
-                // Modified: Automatically hide sidebar and go direct to place order form
+                // Automatically hide sidebar and transition direct to place order
                 const sb = document.getElementById('cart-sidebar');
                 const ov = document.getElementById('cart-overlay');
                 sb.classList.add('translate-x-full'); 
@@ -451,7 +442,7 @@
             const ex = cart.find(x => x.id === id); 
             if(ex) ex.qty++; else cart.push({...c, qty: 1}); 
             updateCartUI(); 
-            showToast(`${c.name} added`); 
+            showToast(`${c.name} added to bin`); 
         }
 
         function updateCartUI() {
@@ -470,7 +461,7 @@
             document.getElementById('product-modal').classList.remove('hidden');
             if (id) {
                 const p = cakes.find(x => x.id === id);
-                document.getElementById('modal-title').innerText = "Edit Item";
+                document.getElementById('modal-title').innerText = "Edit Cake Details";
                 document.getElementById('modal-product-id').value = p.id;
                 document.getElementById('modal-name').value = p.name;
                 document.getElementById('modal-price').value = p.price;
@@ -480,7 +471,7 @@
                 document.getElementById('file-preview').classList.remove('hidden');
                 document.getElementById('file-name-label').classList.add('hidden');
             } else {
-                document.getElementById('modal-title').innerText = "Add Cake";
+                document.getElementById('modal-title').innerText = "Register New Cake";
                 document.getElementById('product-form').reset();
                 document.getElementById('modal-product-id').value = "";
                 document.getElementById('file-preview').classList.add('hidden');
@@ -488,12 +479,12 @@
             }
         }
 
-        // --- 7. Additional Fragment Renderers ---
+        // --- 7. Authentication Renderers ---
         function renderAuth(mode = 'login', error = null) {
             const container = document.getElementById('main-content');
             container.innerHTML = `
                 <div class="max-w-md mx-auto py-12 animate-in fade-in zoom-in duration-500">
-                    <div class="text-center mb-10"><img src="logo.png" class="w-48 h-24 mx-auto mb-3 object-contain">
+                    <div class="text-center mb-10"><img src="1000398562.jpg" class="w-24 h-24 mx-auto mb-6 object-contain">
                         <h2 class="text-4xl font-brand font-bold text-brand-purple text-center">Owner Portal</h2>
                         <p class="text-gray-400 text-[10px] uppercase tracking-[0.3em] mt-1 text-center">Makarios Cloud Access</p>
                     </div>
@@ -505,7 +496,7 @@
                         <button type="submit" id="auth-btn" class="w-full bg-brand-purple text-white py-5 rounded-2xl font-bold uppercase text-[11px] tracking-widest shadow-xl">Secure Login</button>
                     </form>
                     <p class="text-center mt-8 text-[11px] font-medium text-gray-400 uppercase tracking-widest">
-                        <button onclick="showPage('${mode === 'login' ? 'signup' : 'login'}')" class="text-brand-gold font-bold underline">${mode === 'login' ? 'Register New Account' : 'Back to Login'}</button>
+                        <button onclick="showPage('${mode === 'login' ? 'signup' : 'login'}')" class="text-brand-gold font-bold underline">${mode === 'login' ? 'Register Account' : 'Back to Login'}</button>
                     </p>
                 </div>`;
         }
@@ -526,7 +517,7 @@
                 <h2 class="text-4xl font-brand font-bold mb-10 text-brand-purple">Order Archive</h2>
                 <div class="grid gap-4">${orders.map(o => `
                     <div class="bg-white p-6 rounded-[2rem] border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 hover:shadow-md cursor-pointer group" onclick="showPage('order-details', '${o.id}')">
-                        <div class="text-left w-full md:w-auto"><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">ID: ${o.id.slice(-6).toUpperCase()}</span><h3 class="font-bold text-base group-hover:text-brand-gold transition-colors">${o.customer}</h3><p class="text-[10px] text-gray-400">${new Date(o.date).toLocaleDateString()}</p></div>
+                        <div class="text-left w-full md:w-auto"><span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">#${o.tempId || o.id.slice(-6).toUpperCase()}</span><h3 class="font-bold text-base group-hover:text-brand-gold transition-colors">${o.customer}</h3><p class="text-[10px] text-gray-400">${new Date(o.date).toLocaleDateString()}</p></div>
                         <div class="flex items-center gap-6"><span class="text-2xl font-brand font-bold">₹${o.total.toLocaleString()}</span><button onclick="event.stopPropagation(); downloadPDF('${o.id}')" class="p-3 bg-gray-50 rounded-xl hover:bg-brand-purple hover:text-white transition-all"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2"/></svg></button></div>
                     </div>`).join('')}</div>`;
         }
@@ -535,73 +526,120 @@
             const total = orders.reduce((s,o) => s + o.total, 0);
             document.getElementById('main-content').innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8 mb-12">
-                    <div class="bg-brand-purple p-10 rounded-[3rem] text-white shadow-2xl"><span class="text-[10px] uppercase font-bold opacity-50 tracking-widest">Total Revenue</span><p class="text-5xl font-brand font-bold mt-2">₹${total.toLocaleString()}</p></div>
+                    <div class="bg-brand-purple p-10 rounded-[3rem] text-white shadow-2xl transition-all hover:scale-[1.02]"><span class="text-[10px] uppercase font-bold opacity-50 tracking-widest">Gross Revenue</span><p class="text-5xl font-brand font-bold mt-2">₹${total.toLocaleString()}</p></div>
                     <div class="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Bookings</span><p class="text-5xl font-brand font-bold mt-2">${orders.length}</p></div>
                 </div>
-                <div class="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-xl h-[450px] animate-in fade-in duration-1000"><h3 class="text-2xl font-brand font-bold mb-10 text-brand-purple">Performance Overview</h3><canvas id="perfChart"></canvas></div>`;
+                <div class="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-xl h-[450px] animate-in fade-in duration-1000"><h3 class="text-2xl font-brand font-bold mb-10 text-brand-purple">Sales Analytics</h3><canvas id="perfChart"></canvas></div>`;
             const canvas = document.getElementById('perfChart');
-            if (canvas) new Chart(canvas.getContext('2d'), { type: 'line', data: { labels: orders.slice(0, 10).reverse().map(o => o.id.slice(-4)), datasets: [{ label: 'Sales', data: orders.slice(0, 10).reverse().map(o => o.total), borderColor: '#B88E2F', backgroundColor: 'rgba(184, 142, 47, 0.1)', fill: true, tension: 0.4 }] }, options: { maintainAspectRatio: false } });
+            if (canvas) new Chart(canvas.getContext('2d'), { type: 'line', data: { labels: orders.slice(0, 10).reverse().map(o => o.tempId || o.id.slice(-4)), datasets: [{ label: 'Sale Value', data: orders.slice(0, 10).reverse().map(o => o.total), borderColor: '#B88E2F', backgroundColor: 'rgba(184, 142, 47, 0.1)', fill: true, tension: 0.4 }] }, options: { maintainAspectRatio: false } });
         }
 
         function renderSuccess(d) {
             document.getElementById('main-content').innerHTML = `
                 <div class="max-w-md mx-auto py-20 text-center animate-in zoom-in duration-500">
-                    <div class="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4"/></svg></div>
+                    <div class="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl"><svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4"/></svg></div>
                     <h2 class="text-4xl font-brand font-bold mb-4">Confirmed!</h2>
-                    <p class="text-gray-400 mb-10 font-medium">Digital ID: #${d.order.tempId || d.order.id.slice(-6).toUpperCase()}</p>
+                    <p class="text-gray-400 mb-10 font-medium">Order: #${d.order.tempId || d.order.id.slice(-6).toUpperCase()}</p>
                     <div class="space-y-4">
-                        <a href="${d.waUrl}" target="_blank" class="block w-full bg-[#25D366] text-white py-5 rounded-3xl font-bold uppercase text-[11px] tracking-widest shadow-lg text-center">WhatsApp Confirmation</a>
-                        <button onclick="downloadPDF('${d.order.id}')" class="block w-full bg-brand-purple text-white py-5 rounded-3xl font-bold uppercase text-[11px] tracking-widest shadow-lg">Save PDF Bill</button>
+                        <a href="${d.waUrl}" target="_blank" class="block w-full bg-[#25D366] text-white py-5 rounded-3xl font-bold uppercase text-[11px] tracking-widest shadow-lg text-center transition-transform hover:scale-105">WhatsApp Receipt</a>
+                        <button onclick="downloadPDF('${d.order.id}')" class="block w-full bg-brand-purple text-white py-5 rounded-3xl font-bold uppercase text-[11px] tracking-widest shadow-lg transition-transform hover:scale-105">Save PDF Bill</button>
+                        <button onclick="showPage('home')" class="block w-full text-brand-gold font-bold uppercase text-[10px] underline pt-4">Return to Inventory</button>
                     </div>
                 </div>`;
         }
 
+        // --- 9. Premium Vertical PDF Receipt ---
         function downloadPDF(id) {
             const o = orders.find(x => x.id === id);
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: 'mm', format: [100, 240] }); // Custom receipt size
-            const tempId = "1001-" + Math.floor(Math.random() * 1000);
+            const doc = new jsPDF({ unit: 'mm', format: [82, 240] }); // Standard thermal width
+            const logo = document.getElementById('brand-logo-img');
 
-            // Receipt Style (As requested in template)
-            doc.setFont('Courier', 'bold');
-            doc.setTextColor(61, 28, 42); 
-            doc.setFontSize(16);
-            doc.text('MAKARIOS CAKES', 50, 15, { align: 'center' });
+            // Header Background & Branding
+            doc.setFillColor(61, 28, 42); 
+            doc.rect(0, 0, 82, 45, 'F');
             
+            // Try to draw logo if available
+            try {
+                doc.addImage(logo, 'JPEG', 30, 6, 36, 22);
+            } catch(e) {}
+
+            doc.setTextColor(255);
+            doc.setFont('Playfair+Display', 'bold');
+            doc.setFontSize(14);
+            doc.text('MAKARIOS CAKES', 40, 34, { align: 'center' });
             doc.setFont('Courier', 'italic');
-            doc.setFontSize(10);
-            doc.text('Taste the Delicious cakes now', 50, 20, { align: 'center' });
-            doc.setFont('Courier', 'normal');
-            doc.text('------------------------------', 50, 25, { align: 'center' });
+            doc.setFontSize(8);
+            doc.text('Taste the Delicious cakes now', 40, 40, { align: 'center' });
 
-            let y = 35;
-            doc.setFontSize(10);
-            doc.text(`Order id: ${tempId}`, 10, y); y += 8;
-            doc.text(`Cake name: ${o.items.map(i => i.name).join(', ')}`, 10, y, { maxWidth: 80 }); y += (o.items.length > 1 ? 12 : 8);
-            doc.text(`Quantity: ${o.items.reduce((s,i) => s+i.qty, 0)}`, 10, y); y += 8;
-            doc.text(`Add ons: ${o.addons || 'None'}`, 10, y); y += 8;
-            doc.text(`Cost: ₹${o.subtotal.toLocaleString()}.00`, 10, y); y += 8;
-            doc.text(`Discount: -₹${o.discount.toLocaleString()}.00`, 10, y); y += 8;
+            // Content Body
+            doc.setTextColor(40);
+            doc.setFont('Courier', 'normal');
+            doc.setFontSize(9);
             
-            doc.text('------------------------------', 50, y, { align: 'center' }); y += 10;
+            let y = 55;
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
+            
             doc.setFont('Courier', 'bold');
-            doc.setFontSize(12);
-            doc.text(`Total cost: ₹${o.total.toLocaleString()}.00`, 10, y); y += 10;
+            doc.text(`Order id: ${o.tempId || o.id.slice(-6).toUpperCase()}`, 5, y); y += 6;
             doc.setFont('Courier', 'normal');
-            doc.setFontSize(10);
-            doc.text('------------------------------', 50, y, { align: 'center' }); y += 10;
+            doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 5, y);
+            doc.text(`Time: ${new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`, 45, y); y += 8;
 
-            doc.text(`Customer name: ${o.customer}`, 10, y); y += 8;
-            doc.text(`Phone number: ${o.phone}`, 10, y); y += 8;
-            doc.text(`Address: ${o.location}`, 10, y); y += 8;
-            doc.text(`Payment type: ${o.paymentType}`, 10, y); y += 8;
-            doc.text(`Payment status: PAID`, 10, y); y += 10;
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
+
+            // Cake Info
+            doc.setFont('Courier', 'bold');
+            doc.text('Items:', 5, y); y += 6;
+            doc.setFont('Courier', 'normal');
+            o.items.forEach(i => {
+                doc.text(`• ${i.name}`, 5, y);
+                doc.text(`₹${(i.price*i.qty).toLocaleString()}.00`, 60, y, { align: 'right' });
+                y += 5;
+            });
+            y += 2;
+            doc.text(`Quantity: ${o.items.reduce((s,i)=>s+i.qty, 0)}`, 5, y); y += 6;
+            doc.text(`Add ons: ${o.addons || 'None'}`, 5, y); y += 8;
+
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 6;
+
+            // Costs
+            doc.text('Subtotal Cost:', 5, y);
+            doc.text(`₹${o.subtotal.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 6;
+            doc.text('Discount:', 5, y);
+            doc.text(`-₹${o.discount.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 6;
+
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 8;
+
+            // Grand Total
+            doc.setFontSize(12);
+            doc.setFont('Courier', 'bold');
+            doc.text('Total Cost:', 5, y);
+            doc.text(`₹${o.total.toLocaleString()}.00`, 60, y, { align: 'right' }); y += 5;
             
-            doc.text('------------------------------', 50, y, { align: 'center' }); y += 10;
-            doc.text('Thank you for your order! Enjoy', 50, y, { align: 'center' }); y += 6;
-            doc.text('your cake! Visit again soon.', 50, y, { align: 'center' });
+            doc.setFontSize(9);
+            doc.setFont('Courier', 'normal');
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 8;
 
-            doc.save(`Makarios_Receipt_${id.slice(-4)}.pdf`);
+            // Customer Info
+            doc.setFont('Courier', 'bold');
+            doc.text('Customer Data:', 5, y); y += 6;
+            doc.setFont('Courier', 'normal');
+            doc.text(`Name: ${o.customer}`, 5, y); y += 6;
+            doc.text(`Phone: ${o.phone}`, 5, y); y += 6;
+            doc.text(`Address: ${o.location}`, 5, y, { maxWidth: 70 }); y += 10;
+            
+            doc.text(`Payment: ${o.paymentType}`, 5, y); y += 6;
+            doc.text(`Status: PAID`, 5, y); y += 10;
+
+            doc.text('--------------------------------', 40, y, { align: 'center' }); y += 8;
+
+            // Footer
+            doc.setFont('Courier', 'italic');
+            doc.text('Thank you for your order! Enjoy', 40, y, { align: 'center' }); y += 5;
+            doc.text('your cake! Visit again soon.', 40, y, { align: 'center' });
+
+            doc.save(`Makarios_Bill_${o.tempId || o.id.slice(-4)}.pdf`);
         }
 
         function renderOrderDetails(id) {
@@ -609,15 +647,16 @@
             document.getElementById('main-content').innerHTML = `
                 <div class="max-w-3xl mx-auto py-10 animate-in zoom-in duration-500">
                     <div class="bg-white p-10 rounded-[3rem] shadow-2xl">
-                        <h2 class="text-3xl font-brand font-bold mb-8 text-brand-purple underline decoration-brand-gold underline-offset-8 text-center">Booking Detail</h2>
+                        <h2 class="text-3xl font-brand font-bold mb-8 text-brand-purple text-center underline decoration-brand-gold underline-offset-8">Booking Detail</h2>
                         <div class="space-y-4 mb-10 pb-10 border-b border-gray-100">
+                            <p class="text-sm">Order ID: <b>#${o.tempId || o.id.slice(-6).toUpperCase()}</b></p>
                             <p class="text-sm">Customer: <b>${o.customer}</b></p>
                             <p class="text-sm">Contact: <b>${o.phone}</b></p>
                             <p class="text-sm">Location: <b>${o.location}</b></p>
                         </div>
                         <div class="space-y-3 mb-10">${o.items.map(i => `<div class="flex justify-between text-sm"><span>${i.name} (x${i.qty})</span><span>₹${(i.price*i.qty).toLocaleString()}</span></div>`).join('')}</div>
                         <div class="pt-8 border-t border-dashed space-y-4">
-                             <div class="flex justify-between text-xs text-gray-400 uppercase font-bold tracking-widest"><span>Grand Total Paid</span><span class="text-brand-purple text-lg font-brand">₹${o.total.toLocaleString()}</span></div>
+                             <div class="flex justify-between text-xs text-gray-400 uppercase font-bold tracking-widest"><span>Grand Total Paid</span><span class="text-brand-purple text-xl font-brand font-bold">₹${o.total.toLocaleString()}</span></div>
                         </div>
                         <div class="mt-12 flex gap-4"><button onclick="downloadPDF('${o.id}')" class="flex-1 bg-brand-purple text-white py-5 rounded-2xl font-bold uppercase text-[10px] tracking-widest shadow-lg">Download PDF</button><button onclick="showPage('history')" class="flex-1 bg-gray-50 text-gray-500 py-5 rounded-2xl font-bold uppercase text-[10px] tracking-widest">Go Back</button></div>
                     </div>
